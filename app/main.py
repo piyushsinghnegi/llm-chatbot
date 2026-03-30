@@ -18,7 +18,7 @@ def chat(prompt: str):
                     {"role": "user", "content": prompt}
                 ]
             },
-            timeout=50
+            timeout=180
         )
 
         response.raise_for_status()
@@ -55,7 +55,7 @@ def check_health():
                 "model": "Qwen/Qwen2.5-0.5B-Instruct",
                 "messages": [{"role": "user", "content": "ping"}]
             },
-            timeout=5
+            timeout=10
         )
 
         return {"status": "ok", "vllm_status": response.status_code}
