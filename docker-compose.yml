@@ -1,0 +1,22 @@
+services:
+  vllm:
+    image: vllm/vllm-openai-cpu
+    command: >
+      Qwen/Qwen2.5-0.5B-Instruct
+      --max-model-len 2048
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      retries: 5
+    ports:
+      - "8000:8000"
+
+  api:
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      vllm:
+        condition: service_healthy
+    environment:
+      - VLLM_URL=http://vllm:8000/v1/chat/completions

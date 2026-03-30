@@ -1,0 +1,48 @@
+name: Deploy to Production
+
+on:
+  workflow_run:
+    workflows: ["Build and Push Docker Image"]
+    types: [completed]
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    environment: production
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+        
+      - name: Login to ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Deploy with Docker Compose
+        shell: bash
+        run: |
+          docker pull ${{ secrets.AWS_IMAGE_TAG }}
+          docker compose down
+          docker compose up -d --pull always
+      
+      - name: Notify Teams
+        if: always()
+        shell: bash
+        run: |
+          curl -H "Content-Type: application/json" \
+          -d "{
+            \"@type\": \"MessageCard\",
+            \"@context\": \"http://schema.org/extensions\",
+            \"summary\": \"Build Status\",
+            \"themeColor\": \"0076D7\",
+            \"title\": \"Docker Build Status\",
+            \"text\": \"Build completed with status: ${{ job.status }}\"
+          }" \
+          ${{ secrets.TEAMS_WEBHOOK_URL }}
