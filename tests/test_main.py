@@ -118,4 +118,3 @@ def test_chat_empty_prompt(mock_post):
     response = client.post("/chat", params={"prompt": ""})
 
     assert response.status_code == 200
-    
