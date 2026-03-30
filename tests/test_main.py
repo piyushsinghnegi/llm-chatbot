@@ -18,7 +18,7 @@ def test_health_success(mock_post):
     assert response.status_code == 200
     data = response.json()
     assert data["status"] == "ok"
-    assert data["vllm_status"] == 200
+    assert data["ollama_status"] == 200
 
 
 @patch("app.main.requests.post")
@@ -68,7 +68,7 @@ def test_chat_timeout(mock_post):
     response = client.post("/chat", params={"prompt": "Hello"})
 
     assert response.status_code == 504
-    assert response.json()["detail"] == "vLLM timeout"
+    assert response.json()["detail"] == "ollama timeout"
 
 
 @patch("app.main.requests.post")
@@ -78,7 +78,7 @@ def test_chat_connection_error(mock_post):
     response = client.post("/chat", params={"prompt": "Hello"})
 
     assert response.status_code == 503
-    assert response.json()["detail"] == "vLLM unavailable"
+    assert response.json()["detail"] == "ollama unavailable"
 
 
 @patch("app.main.requests.post")
@@ -90,7 +90,7 @@ def test_chat_http_error(mock_post):
     response = client.post("/chat", params={"prompt": "Hello"})
 
     assert response.status_code == 502
-    assert "vLLM HTTP error" in response.json()["detail"]
+    assert "ollama HTTP error" in response.json()["detail"]
 
 
 @patch("app.main.requests.post")
@@ -103,7 +103,7 @@ def test_chat_invalid_response(mock_post):
     response = client.post("/chat", params={"prompt": "Hello"})
 
     assert response.status_code == 502
-    assert response.json()["detail"] == "Invalid response from vLLM"
+    assert response.json()["detail"] == "Invalid response from ollama"
 
 
 @patch("app.main.requests.post")

@@ -1,31 +1,35 @@
 services:
-  vllm:
-    image: vllm/vllm-openai-cpu
-    environment:
-      - VLLM_CPU_KVCACHE_SPACE=2
-      - OMP_NUM_THREADS=2
-    command: >
-      Qwen/Qwen2.5-0.5B-Instruct
-      --max-model-len 2048
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 30s
-      timeout: 20s
-      retries: 10
-      start_period: 120s
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    volumes:
+      - ollama_storage:/root/.ollama
     ports:
-      - "8000:8000"
-    deploy:
-      resources:
-        limits:
-          memory: 6.5G
+      - "11434:11434"
+    entrypoint: /bin/sh
+    command: >
+      -c "ollama serve & 
+      sleep 5; 
+      ollama pull qwen2.5:0.5b; 
+      wait"
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
 
   api:
     build: .
+    container_name: llm-chatbot-api-1
     ports:
       - "8080:8080"
-    depends_on:
-      vllm:
-        condition: service_healthy
     environment:
-      - VLLM_URL=http://vllm:8000/v1/chat/completions
+      - OLLAMA_URL=http://ollama:11434/v1/chat/completions
+      - MODEL_NAME=qwen2.5:0.5b
+    depends_on:
+      ollama:
+        condition: service_healthy
+
+volumes:
+  ollama_storage:
