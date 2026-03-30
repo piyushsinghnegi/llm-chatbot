@@ -68,3 +68,4 @@ def check_health():
 
     except Exception:
         return {"status": "error", "reason": "unknown"}
+        

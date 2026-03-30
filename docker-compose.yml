@@ -20,3 +20,4 @@ services:
         condition: service_healthy
     environment:
       - VLLM_URL=http://vllm:8000/v1/chat/completions
+      
