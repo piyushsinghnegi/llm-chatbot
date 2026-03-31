@@ -29,8 +29,8 @@ jobs:
         shell: bash
         run: |
           docker pull ${{ secrets.AWS_IMAGE_TAG }}
-          docker compose down
-          docker compose up -d --pull always
+          docker-compose down
+          docker-compose up -d --pull always
       
       - name: Notify Teams
         if: always()
