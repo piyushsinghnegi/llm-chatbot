@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from prometheus_fastapi_instrumentator import Instrumentator
 import requests
 import os
 
@@ -6,6 +7,7 @@ app = FastAPI()
 
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://ollama:11434/v1/chat/completions")
 MODEL_NAME = os.getenv("MODEL_NAME", "qwen2.5:0.5b")
+Instrumentator().instrument(app).expose(app)
 
 
 @app.post("/chat")
