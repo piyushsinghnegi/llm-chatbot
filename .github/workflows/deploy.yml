@@ -29,8 +29,10 @@ jobs:
         shell: bash
         run: |
           docker pull ${{ secrets.AWS_IMAGE_TAG }}
+          docker rm -f ollama llm-chatbot-api-1 prometheus grafana || true
           docker-compose down
           docker-compose up -d --pull always
+          docker image prune -a -f
       
       - name: Notify Teams
         if: always()
