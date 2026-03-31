@@ -3,3 +3,4 @@ venv/
 __pycache__/
 .github/
 .pytest_cache/
+.git
