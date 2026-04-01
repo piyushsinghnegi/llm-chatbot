@@ -30,6 +30,16 @@ services:
     depends_on:
       ollama:
         condition: service_healthy
+
+    alertmanager:
+      image: prom/alertmanager:latest
+      container_name: alertmanager
+      ports:
+        - "9093:9093"
+      volumes:
+        - ./alertmanager.yml:/etc/alertmanager/alertmanager.yml
+      command:
+        - '--config.file=/etc/alertmanager/alertmanager.yml'
       
   prometheus:
     image: prom/prometheus:latest
@@ -37,6 +47,7 @@ services:
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus_data:/prometheus
+      - ./alert_rules.yml:/etc/prometheus/alert_rules.yml
     ports:
       - "9090:9090"
 
