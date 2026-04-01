@@ -1,0 +1,29 @@
+groups:
+  - name: llmops_alerts
+    rules:
+      - alert: FastAPIDown
+        expr: up{job="fastapi"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Critical: FastAPI inference server is down!"
+          description: "Prometheus could not scrape the API for 1 minute."
+
+      - alert: OllamaDown
+        expr: up{job="ollama"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Critical: Ollama Engine is down!"
+          description: "The LLM engine is unreachable."
+
+      - alert: HighInferenceLatency
+        expr: rate(http_request_duration_seconds_sum[2m]) / rate(http_request_duration_seconds_count[2m]) > 60
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Warning: LLM Inference is extremely slow."
+          description: "Average request time has exceeded 60 seconds over the last 2 minutes."
